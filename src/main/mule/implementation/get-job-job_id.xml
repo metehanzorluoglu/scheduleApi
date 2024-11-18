@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="get:\job\(job_id):cron-sapi-config">
+        <logger level="INFO" message="get:\job\(job_id):cron-sapi-config" doc:name="Start Get Job with id"/>
+		<set-variable value="#[attributes.uriParams.job_id]" doc:name="Set job id" doc:id="53894801-298a-4d42-84aa-e5ae2e16bc34" variableName="job_id"/>
+		<db:select doc:name="Select" doc:id="401d06b8-e3c4-41dc-866b-3d2aa13a8ee5" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[SELECT 
+    j.name AS job_name,
+    j.description AS job_description,
+    j.type AS job_type,
+    j.schedule AS job_schedule,
+    j.startup_cmd AS job_startup_cmd,
+    j.stop_cmd AS job_stop_cmd,
+    js.id AS job_set_id,
+    js.name AS job_set_name,
+    js.description AS job_set_description
+FROM jobs j
+JOIN job_job_set jjs ON j.id = jjs.job_id 
+JOIN job_set js ON js.id = jjs.job_set_id AND js.isActive = 1
+WHERE j.isActive = 1 and j.id = :job_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	job_id: vars.job_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="caa09b5e-87a2-4507-bf14-cff5925883b4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	name: payload.JOB_NAME[0] default "",
+	description: payload.JOB_DESCRIPTION[0] default "",
+	"type": payload.JOB_TYPE[0] default "",
+	schedule: payload.JOB_SCHEDULE[0] default "",
+	startup_cmd: payload.JOB_STARTUP_CMD[0] default "",
+	stop_cmd: payload.JOB_STOP_CMD[0] default "",
+	job_sets: payload map ( payload01 , indexOfPayload01 ) -> {
+		set_id: payload01.JOB_SET_ID,
+		name: payload01.JOB_SET_NAME default "",
+		description: payload01.JOB_SET_DESCRIPTION default ""
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Get Job with id" doc:id="b89038b8-7d29-4f69-b5ee-72210c78bb9d" />
+    </flow>
+	
+	</mule>

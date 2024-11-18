@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="post:\assign:application\json:cron-sapi-config" doc:id="5f6d47b5-99c0-48a9-bb7b-30e6451dfbf1" >
+		<logger level="INFO" doc:name="start assign" doc:id="ba7002c1-c6b9-428e-a997-27580abd9a43" />
+		<ee:transform doc:name="Transform Message" doc:id="c522d865-5396-46bb-b2d3-702fa56e6c1e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="assign_job" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	job_id: payload.job_id,
+	job_set_id: payload.set_id
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:stored-procedure doc:name="Stored procedure" doc:id="4ef06021-8434-4b47-8dd7-41e0712e75b8" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[{CALL assign_job_set(:job_id, :job_set_id, :output_id)}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.assign_job]]]></db:input-parameters>
+			<db:output-parameters >
+				<db:output-parameter key="output_id" type="NUMERIC" />
+			</db:output-parameters>
+		</db:stored-procedure>
+		<ee:transform doc:name="Transform Message" doc:id="edcbf13b-3e24-47b6-8c65-56ab9126138a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"id": payload[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End assign" doc:id="50b94fe1-16c1-45e2-a828-a9e2dab4fc6f" />
+	</flow>
+	
+	</mule>

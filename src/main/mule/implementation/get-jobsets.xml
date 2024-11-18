@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<flow name="get:\jobsets:cron-sapi-config">
+        <logger level="INFO" message="get:\jobsets:cron-sapi-config" doc:name="Start Get Jobsets"/>
+		<db:select doc:name="Get jobsets" doc:id="115bfb70-c477-4da7-85c1-18936dca8c95" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[SELECT 
+    j.name AS set_name,
+    j.description AS set_description,
+    j.id AS set_id
+FROM job_set j WHERE j.isActive = 1]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c681c43a-7d0e-462f-97ac-951c03b00c6f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	set_id: payload01.SET_ID,
+	name: payload01.SET_NAME default "",
+	description: payload01.SET_DESCRIPTION default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Eng get Jobsets" doc:id="f0d26eef-f8da-41d3-bae4-b618619a5525" />
+    </flow>
+	
+	</mule>

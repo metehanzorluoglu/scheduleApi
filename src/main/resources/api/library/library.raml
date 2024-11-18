@@ -1,0 +1,101 @@
+#%RAML 1.0 Library
+usage: cron sapi datatypes
+
+types:
+  JobInput:
+    type: object
+    properties:
+      name:
+        required: true
+        type: string
+      description: 
+        required: false
+        type: string
+      type: 
+        required: false
+        type: string
+      schedule: 
+        required: false
+        type: string
+      startup_cmd: 
+        required: true
+        type: string
+      stop_cmd: 
+        required: true
+        type: string
+  Job:
+    type: JobInput
+    properties:
+      job_id: 
+        type: integer
+      is_active: 
+        type: boolean
+      job_set:
+          type: JobSetInput
+
+  JobId:
+    type: JobInput
+    properties:
+      job_id: 
+        type: integer
+      is_active: 
+        type: boolean
+      job_sets:
+          type: JobSet[]
+
+  SingleResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+
+  JobUpdate:
+    type: object
+    properties:
+      schedule: 
+        type: string
+      is_active: 
+        type: boolean
+
+  JobSetInput:
+    type: object
+    properties:
+      name: 
+        type: string
+        required: true
+      description: 
+        type: string
+
+  JobSet:
+    type: JobSetInput
+    properties:
+      set_id: 
+        type: integer
+
+  JobSetUpdate:
+    type: object
+    properties:
+      is_active: 
+        type: boolean
+
+  Assignment:
+    type: object
+    properties:
+      job_id:
+        type: integer
+        required: true
+      set_id:
+        type: integer
+        required: true
+
+  Checkpoint:
+    type: object
+    properties:
+      checkpoint_id: 
+        type: integer
+      job_id: 
+        type: integer
+      timestamp: 
+        type: datetime
+      data: 
+        type: string

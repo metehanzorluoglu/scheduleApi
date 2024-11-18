@@ -1,0 +1,22 @@
+#%RAML 1.0 Library
+usage: Common datatypes library across uho apis
+types:
+  error-response-types:
+    type: object
+    description: To detail error information. Generic type of error that all API's should incorporate this object.
+    properties:
+      code:
+        type: integer
+        required: true
+      message:
+        required: true
+        type: string
+      description:
+        required: true
+        type: string
+      dateTime:
+        required: true
+        type: datetime
+      transactionId:
+        required: true
+        type: string

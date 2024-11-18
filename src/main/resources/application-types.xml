@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="cronParameters" format="json">
+      <types:shape format="weave" example="examples/cronParameters-1.json"><![CDATA[%dw 2.0
+
+type cronParameters = {|
+  name: String, 
+  description: String, 
+  "type": String, 
+  schedule: String, 
+  startup_cmd: String, 
+  stop_cmd: String, 
+  set_ids: Array<Number {"typeId": "int"}>
+|} {"example": "{\\\"name\\\":\\\"Job Name\\\",\\\"description\\\":\\\"Job Description\\\",\\\"type\\\":\\\"Job Type\\\",\\\"schedule\\\":\\\"Job Schedule\\\",\\\"startup_cmd\\\":\\\"Startup Command\\\",\\\"stop_cmd\\\":\\\"Stop Command\\\",\\\"set_ids\\\":[1,2]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="jobset" format="json">
+      <types:shape format="weave" example="examples/jobset.json"><![CDATA[%dw 2.0
+
+type jobset = {|
+  name: String, 
+  description: String
+|} {"example": "{\\\"name\\\":\\\"Job Name\\\",\\\"description\\\":\\\"Job Description\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="assign_job" format="json">
+      <types:shape format="weave" example="examples/assign_job.json"><![CDATA[%dw 2.0
+
+type assign_job = {|
+  job_id: Number {"typeId": "int"}, 
+  job_set_id: Number {"typeId": "int"}
+|} {"example": "{\\\"job_id\\\":1,\\\"job_set_id\\\":1}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="jobs_with_jobset" format="json">
+      <types:shape format="weave" example="examples/jobs_with_jobset.json"><![CDATA[%dw 2.0
+
+type jobs_with_jobset = {|
+  name: String, 
+  description: String, 
+  "type": String, 
+  schedule: String, 
+  startup_cmd: String, 
+  stop_cmd: String, 
+  job_sets: Array<{|    name: String,     description: String  |}>
+|} {"example": "{\\\"name\\\":\\\"Job1\\\",\\\"description\\\":\\\"First job\\\",\\\"type\\\":\\\"type1\\\",\\\"schedule\\\":\\\"daily\\\",\\\"startup_cmd\\\":\\\"start_job1\\\",\\\"stop_cmd\\\":\\\"stop_job1\\\",\\\"job_sets\\\":[{\\\"name\\\":\\\"Set1\\\",\\\"description\\\":\\\"Description for Set1\\\"},{\\\"name\\\":\\\"Set2\\\",\\\"description\\\":\\\"Description for Set2\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#5095593a-fbe5-4a93-afa6-378bcfbcba0d">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="cronParameters"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#b580d231-9e13-4b3a-8673-34cec490af87">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:variables>
+          <types:variable name="jobset" type="jobset"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#c522d865-5396-46bb-b2d3-702fa56e6c1e">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="assign_job"/>
+        </types:message>
+        <types:variables>
+          <types:variable name="assign_job" type="assign_job"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#0de3c1f6-71ce-4ea9-a9da-0b5645502cd2"/>
+</types:mule>

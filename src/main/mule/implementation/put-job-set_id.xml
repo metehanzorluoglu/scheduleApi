@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="put:\jobsets\(set_id):application\json:cron-sapi-config">
+        <logger level="INFO" message="put:\jobsets\(set_id):application\json:cron-sapi-config" doc:name="Start Update Jobset with id"/>
+		<ee:transform doc:name="Transform Message" doc:id="0de3c1f6-71ce-4ea9-a9da-0b5645502cd2">
+            <ee:variables>
+				<ee:set-variable variableName="updateJobset" ><![CDATA[%dw 2.0
+output application/json
+var isActive = if (payload.is_active) 1 else 0
+---
+{
+	id: attributes.uriParams.'set_id',
+	isActive: isActive
+}]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<db:update doc:name="Update" doc:id="c4bb9746-f70a-476f-817b-42848046cd98" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[UPDATE job_set js
+SET js.isActive = :isActive
+WHERE js.id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.updateJobset]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="483faade-595d-442f-92a3-03fe4b6ba0e6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if ( payload.affectedRows > 0 ) {
+	id: vars.updateJobset.id
+}else{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Update Jobset with id" doc:id="5b5156b8-23ae-4768-85a3-ce5d752f62bb" />
+    </flow>
+	
+	</mule>

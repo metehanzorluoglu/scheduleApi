@@ -1,0 +1,137 @@
+#%RAML 1.0
+title: Batch Job Management API
+version: 1.0.0
+baseUri: http://localhost:5000/api/cron
+uses:
+  cron-sapi-object-library: /library/library.raml
+
+/jobs:
+  post:
+    description: Register a new job
+    body:
+      application/json:
+        type: cron-sapi-object-library.JobInput
+    responses:
+      201:
+        body:
+          application/json:
+            type: cron-sapi-object-library.SingleResponse
+
+  get:
+    description: Get all jobs
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.Job[]
+
+/job/{job_id}:
+  uriParameters:
+    job_id:
+      type: integer
+      description: Numeric ID of the job to get
+
+  get:
+    description: Get job details
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.JobId
+
+  put:
+    description: Update job (activate/deactivate/reschedule)
+    body:
+      application/json:
+        type: cron-sapi-object-library.JobUpdate
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.SingleResponse
+
+  delete:
+    description: Delete a job
+    responses:
+      204:
+        description: Job deleted successfully
+
+/jobsets:
+  post:
+    description: Create a new job set
+    body:
+      application/json:
+        type: cron-sapi-object-library.JobSetInput
+    responses:
+      201:
+        body:
+          application/json:
+            type: cron-sapi-object-library.SingleResponse
+
+  get:
+    description: Get all job sets
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.JobSet[]
+
+/jobsets/{set_id}:
+  uriParameters:
+    set_id:
+      type: integer
+      description: Numeric ID of the job set to get
+
+  get:
+    description: Get job set details
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.JobSet
+
+  put:
+    description: Update job set (activate/deactivate)
+    body:
+      application/json:
+        type: cron-sapi-object-library.JobSetUpdate
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.SingleResponse
+
+  delete:
+    description: Delete a job set
+    responses:
+      204:
+        description: Job set deleted successfully
+
+/jobs/{job_id}/checkpoints:
+  uriParameters:
+    job_id:
+      type: integer
+      description: Numeric ID of the job
+
+  get:
+    description: Get checkpoints for a job
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.Checkpoint[]
+/assign:
+  post:
+    description: Get checkpoints for a job
+    body:
+      application/json:
+        type: cron-sapi-object-library.Assignment
+        example: {
+                  "job_id": 1,
+                  "set_id": 2
+                }
+    responses:
+      200:
+        body:
+          application/json:
+            type: cron-sapi-object-library.SingleResponse

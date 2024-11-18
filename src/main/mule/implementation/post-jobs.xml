@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+
+	<flow name="post:\jobs:application\json:cron-sapi-config">
+		<logger level="INFO"
+			message="post:\jobs:application\json:cron-sapi-config is stared."
+			doc:name="Start register" />
+		<ee:transform doc:name="Transform Message"
+			doc:id="5095593a-fbe5-4a93-afa6-378bcfbcba0d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="job" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	name: payload.name,
+	description: payload.description default "",
+	"type": payload."type" default "",
+	schedule: payload.schedule default "",
+	startup_cmd: payload.startup_cmd,
+	stop_cmd: payload.stop_cmd
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:stored-procedure doc:name="Stored procedure"
+			doc:id="340b4283-4437-4c1a-ad2d-328492ca2651"
+			config-ref="CloudOracleDb">
+			<db:sql><![CDATA[{CALL insert_job(:name, :description, :type, :schedule, :startup_cmd, :stop_cmd, :output_id)}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.job]]]></db:input-parameters>
+			<db:output-parameters >
+				<db:output-parameter key="output_id" type="INTEGER" />
+			</db:output-parameters>
+		</db:stored-procedure>
+		<ee:transform doc:name="Transform Message" doc:id="79ed503b-5d93-4921-8c5d-06a3e550db11" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "id": payload[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End register" doc:id="c37047d6-4291-4f83-b8e6-ab3618a1df89" />
+    </flow>
+	
+	
+	</mule>

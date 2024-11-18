@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	<http:listener-config name="cron_sapi-httpListenerConfig" basePath="cron">
+        <http:listener-connection host="0.0.0.0" port="8082" />
+    </http:listener-config>
+    <apikit:config name="cron-sapi-config" api="api/cron-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" raml="api/cron-sapi.raml" keepRamlBaseUri="true"/>
+    
+    <db:config name="Database_Config" doc:name="Database Config" doc:id="7f8ec255-f031-4b36-8f37-8e479f7dd5e6" >
+		<db:oracle-connection host="oracle-183624-0.cloudclusters.net" port="10079" user="uhubdevuser" password="OracleDeveloper1234" instance="XE" >
+			<db:pooling-profile />
+		</db:oracle-connection>
+	</db:config>
+	<db:config name="CloudOracleDb" doc:name="Database Config" doc:id="c2ffd6a1-48f7-442e-b5fa-b8ba0580b840" >
+		<db:oracle-connection host="146.148.83.139" user="dummy" password="dummy" serviceName="ORCLCDB"/>
+	</db:config>
+	
+	</mule>

@@ -1,0 +1,18 @@
+{
+  "name": "Job1",
+  "description": "First job",
+  "type": "type1",
+  "schedule": "daily",
+  "startup_cmd": "start_job1",
+  "stop_cmd": "stop_job1",
+  "job_sets": [
+    {
+      "name": "Set1",
+      "description": "Description for Set1"
+    },
+    {
+      "name": "Set2",
+      "description": "Description for Set2"
+    }
+  ]
+}

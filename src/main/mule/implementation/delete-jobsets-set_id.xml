@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="delete:\jobsets\(set_id):cron-sapi-config">
+        <logger level="INFO" message="delete:\jobsets\(set_id):cron-sapi-config" doc:name="Start Delete Jobset"/>
+		<set-variable value="#[attributes.uriParams.'set_id']" doc:name="Set Variable" doc:id="e9a2193f-6ed2-47b5-9b6a-253733661ce4" variableName="set_id"/>
+		<db:delete doc:name="Delete" doc:id="30dfcfe3-aef5-4758-98f0-54d6ac7361ad" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[DELETE FROM job_set js WHERE js.id = :set_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"set_id": vars.set_id
+}]]]></db:input-parameters>
+		</db:delete>
+		<logger level="INFO" doc:name="End Delete Jobset" doc:id="6f6b6403-06d2-42bb-a9a6-e94274f2fb76" />
+    </flow>
+	
+	</mule>

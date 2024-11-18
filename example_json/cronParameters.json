@@ -1,0 +1,9 @@
+{
+    "name": "Job Name",
+    "description": "Job Description",
+    "type": "Job Type",
+    "schedule": "Job Schedule",
+    "startup_cmd": "Startup Command",
+    "stop_cmd": "Stop Command",
+    "set_ids": [1,2]
+}

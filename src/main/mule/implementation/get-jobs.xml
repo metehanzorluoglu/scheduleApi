@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="get:\jobs:cron-sapi-config">
+        <logger level="INFO" message="get:\jobs:cron-sapi-config" doc:name="Start Get Jobs"/>
+		<db:select doc:name="Get Jobs" doc:id="43d18f83-4d5a-4209-b3a4-1a6724c6893c" config-ref="CloudOracleDb">
+			<db:sql ><![CDATA[SELECT 
+	j.id AS job_id,
+    j.name AS job_name,
+    j.description AS job_description,
+    j.type AS job_type,
+    j.schedule AS job_schedule,
+    j.startup_cmd AS job_startup_cmd,
+    j.stop_cmd AS job_stop_cmd,
+    js.name AS job_set_name,
+    js.description AS job_set_description
+FROM jobs j
+JOIN job_job_set jjs ON j.id = jjs.job_id 
+JOIN job_set js ON js.id = jjs.job_set_id AND js.isActive = 1
+WHERE j.isActive = 1]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="def50ebe-b970-4288-b74d-e9d9174774a6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	job_id: payload01.JOB_ID,
+	startup_cmd: payload01.JOB_STARTUP_CMD default "",
+	schedule: payload01.JOB_SCHEDULE,
+	stop_cmd: payload01.JOB_STOP_CMD default "",
+	name: payload01.JOB_NAME default "",
+	description: payload01.JOB_DESCRIPTION,
+	"type": payload01.JOB_TYPE,
+	job_set: {
+		name: payload01.JOB_SET_NAME default "",
+		description: payload01.JOB_SET_DESCRIPTION default ""
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End get jobs" doc:id="18815e84-1113-4e70-ae37-104f58a06489" />
+    </flow>
+	
+	</mule>

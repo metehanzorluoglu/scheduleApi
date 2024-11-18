@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	
+	<flow name="get:\jobsets\(set_id):cron-sapi-config">
+        <logger level="INFO" message="get:\jobsets\(set_id):cron-sapi-config" doc:name="start get jobset with id"/>
+		<set-variable value="#[attributes.uriParams.'set_id']" doc:name="Set Variable" doc:id="e14f9d2b-456a-4dbc-9160-393a3392180d" variableName="set_id"/>
+		<db:select doc:name="Get jobsets" doc:id="51dd9fdd-5245-4aeb-9bda-d366dc6c1730" config-ref="CloudOracleDb">
+			<db:sql><![CDATA[SELECT 
+    j.name AS set_name,
+    j.description AS set_description,
+    j.id AS set_id
+FROM job_set j WHERE j.isActive = 1 and j.id = :set_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"set_id": vars.set_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="3e2b7a69-b271-46da-89fc-d71e41af184f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	set_id: payload.SET_ID[0],
+	name: payload.SET_NAME[0] default "",
+	description: payload.SET_DESCRIPTION[0] default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Get Jobset wit id" doc:id="8e8f7208-0b68-41d2-a5be-d2519a002ca4" />
+    </flow>
+	
+	</mule>
