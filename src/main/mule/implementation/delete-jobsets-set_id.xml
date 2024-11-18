@@ -8,7 +8,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	
 	<flow name="delete:\jobsets\(set_id):cron-sapi-config">
-        <logger level="INFO" message="delete:\jobsets\(set_id):cron-sapi-config" doc:name="Start Delete Jobset"/>
+        <logger level="INFO" message="delete:\jobsets\(set_id):cron-sapi-config" doc:name="Start Delete Jobset with id"/>
 		<set-variable value="#[attributes.uriParams.'set_id']" doc:name="Set Variable" doc:id="e9a2193f-6ed2-47b5-9b6a-253733661ce4" variableName="set_id"/>
 		<db:delete doc:name="Delete" doc:id="30dfcfe3-aef5-4758-98f0-54d6ac7361ad" config-ref="CloudOracleDb">
 			<db:sql ><![CDATA[DELETE FROM job_set js WHERE js.id = :set_id]]></db:sql>
